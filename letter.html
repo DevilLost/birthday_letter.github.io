@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>给亲爱的</title>
+    <link rel="shortcut icon" href="favicon.ico">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #f5e6e8 0%, #e8d5e0 50%, #d5c9e0 100%);
+            font-family: 'STSong', 'Songti SC', 'Noto Serif SC', 'SimSun', '宋体', serif;
+            overflow: hidden;
+            perspective: 1200px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
+        .container {
+            position: relative;
+            width: 95vmin;
+            max-width: 1050px;
+            height: 65vmin;
+            max-height: 680px;
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .envelope-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            perspective: 1500px;
+            cursor: pointer;
+        }
+
+        .envelope {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .envelope.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .envelope-front,
+        .envelope-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .envelope-front {
+            background: linear-gradient(145deg, #e8d5d0 0%, #d4a5a5 100%);
+            border: 3px solid #c19696;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 10%;
+            text-align: center;
+        }
+
+        .envelope-front::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 90%;
+            height: 90%;
+            transform: translate(-50%, -50%);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+        }
+
+        .envelope-back {
+            background: linear-gradient(145deg, #d4a5a5 0%, #e8d5d0 100%);
+            border: 3px solid #c19696;
+            transform: rotateY(180deg);
+            position: relative;
+        }
+
+        .envelope-flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(180deg, #e8d5d0 0%, #d4a5a5 100%);
+            clip-path: polygon(0 0, 50% 100%, 100% 0);
+            transform-origin: top;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 2;
+        }
+
+        .envelope-flap.opened {
+            transform: rotateX(-180deg);
+        }
+
+        .wax-seal-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 18%;
+            height: 18%;
+            z-index: 3;
+            cursor: pointer;
+            transition: transform 0.3s ease, opacity 0.5s ease;
+        }
+
+        .wax-seal-container:hover {
+            transform: translate(-50%, -50%) scale(1.08);
+        }
+
+        .wax-seal-container.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .wax-seal-container.opening {
+            animation: breakSeal 1s forwards;
+        }
+
+        @keyframes breakSeal {
+            0% { transform: scale(1) rotate(0deg); opacity: 1; }
+            50% { transform: scale(1.5) rotate(10deg); opacity: 0.8; }
+            100% { transform: scale(0) rotate(45deg); opacity: 0; }
+        }
+
+        .wax-seal {
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 30%, #8b0000 0%, #5c0000 40%, #3a0000 100%);
+            border-radius: 50%;
+            position: relative;
+            box-shadow: 
+                0 4px 8px rgba(0, 0, 0, 0.4),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.5),
+                inset 0 2px 4px rgba(255, 255, 255, 0.2);
+            border: 3px solid #2c0000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .wax-seal::before {
+            content: '❤️';
+            font-size: 25%;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            filter: drop-shadow(1px 1px 0 #000);
+        }
+
+        .wax-seal::after {
+            content: '';
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .front-title {
+            font-family: Georgia, 'STKaiti', 'KaiTi', '楷体', serif;
+            font-size: clamp(2rem, 6vw, 4rem);
+            color: #5a3e3e;
+            margin-bottom: 1em;
+            letter-spacing: 3px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .front-address {
+            font-size: clamp(1rem, 2.5vw, 1.5rem);
+            color: #6b4b4b;
+            line-height: 1.8;
+            font-weight: 400;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .front-to {
+            font-family: Georgia, 'STKaiti', 'KaiTi', '楷体', serif;
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            margin-top: 1em;
+            color: #5a3e3e;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .letter-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .letter {
+            background: linear-gradient(145deg, #fff9f0 0%, #fdf6e3 100%);
+            width: 85%;
+            height: 90%;
+            padding: 8% 10%;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            transform: translateY(100%) scale(0.8);
+            opacity: 0;
+            transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow-y: auto;
+            background-image: 
+                linear-gradient(90deg, transparent 0%, rgba(200, 180, 180, 0.1) 50%, transparent 100%),
+                linear-gradient(0deg, transparent 0%, rgba(200, 180, 180, 0.1) 50%, transparent 100%);
+        }
+
+        .letter.opened {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .letter::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            bottom: 10px;
+            left: 40px;
+            width: 1px;
+            background: linear-gradient(to bottom, transparent 0%, #d4c5c5 10%, #d4c5c5 90%, transparent 100%);
+        }
+
+        .letter-greeting {
+            font-family: Georgia, 'STKaiti', 'KaiTi', '楷体', serif;
+            font-size: clamp(1.8rem, 4.5vw, 2.6rem);
+            color: #6b3a3a;
+            text-align: left;
+            margin-bottom: 1.2em;
+            font-weight: 600;
+            letter-spacing: 2px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .letter-greeting .letter-name {
+            display: inline-block;
+            margin: 0 0.3em;
+            color: #8b4a4a;
+        }
+
+        .letter-content {
+            font-size: clamp(1.15rem, 2.6vw, 1.5rem);
+            line-height: 2.1;
+            color: #3a2a2a;
+            text-indent: 2em;
+            font-weight: 500;
+            margin-bottom: 1.5em;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .letter-content p {
+            margin-bottom: 0.8em;
+            text-indent: 2em;
+        }
+
+        .letter-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .letter-closing {
+            font-family: Georgia, 'STKaiti', 'KaiTi', '楷体', serif;
+            font-size: clamp(1.2rem, 3vw, 1.6rem);
+            color: #3a2a2a;
+            text-align: right;
+            margin-top: 1.5em;
+            margin-right: 30%;
+            font-weight: 500;
+            letter-spacing: 4px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .letter-closing-end {
+            font-family: Georgia, 'STKaiti', 'KaiTi', '楷体', serif;
+            font-size: clamp(1.2rem, 3vw, 1.6rem);
+            color: #3a2a2a;
+            text-align: right;
+            margin-top: 0.3em;
+            margin-right: 20%;
+            font-weight: 500;
+            letter-spacing: 4px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .letter-signature {
+            margin-top: 2.5em;
+            text-align: right;
+            font-family: Georgia, 'STKaiti', 'KaiTi', '楷体', serif;
+            font-size: clamp(1.3rem, 3vw, 1.7rem);
+            color: #6b3a3a;
+            line-height: 1.8;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .letter-signature .sign-name {
+            color: #8b4a4a;
+            font-weight: 600;
+        }
+
+        .letter-signature .sign-date {
+            font-size: clamp(0.9rem, 2.2vw, 1.2rem);
+            color: #6b4b4b;
+        }
+
+        .hint-text {
+            position: absolute;
+            bottom: -8vmin;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: clamp(0.8rem, 2vw, 1rem);
+            color: #8b6b6b;
+            font-style: italic;
+            opacity: 0.8;
+            white-space: nowrap;
+        }
+
+        .heart-decoration {
+            position: absolute;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        .heart-decoration:nth-child(1) {
+            top: 10%;
+            left: 10%;
+            font-size: 2rem;
+            animation-delay: 0s;
+        }
+
+        .heart-decoration:nth-child(2) {
+            top: 20%;
+            right: 15%;
+            font-size: 1.5rem;
+            animation-delay: 1s;
+        }
+
+        .heart-decoration:nth-child(3) {
+            bottom: 15%;
+            left: 15%;
+            font-size: 1.8rem;
+            animation-delay: 2s;
+        }
+
+        .heart-decoration:nth-child(4) {
+            bottom: 25%;
+            right: 10%;
+            font-size: 1.2rem;
+            animation-delay: 3s;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 20px;
+            }
+
+            .container {
+                width: 95vw;
+                height: 75vw;
+            }
+
+            .letter {
+                padding: 8% 8% 8% 14%;
+            }
+
+            .letter::before {
+                left: 25px;
+            }
+
+            .letter-content {
+                line-height: 1.9;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                width: 95vw;
+                height: 90vw;
+            }
+
+            .wax-seal-container {
+                width: 20%;
+                height: 20%;
+            }
+
+            .hint-text {
+                bottom: -10vmin;
+            }
+        }
+
+        .container.opened {
+            transform: scale(1.05);
+        }
+
+        .particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #8b0000;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="heart-decoration">💕</div>
+    <div class="heart-decoration">💌</div>
+    <div class="heart-decoration">❤️</div>
+    <div class="heart-decoration">💖</div>
+
+    <div class="container" id="container">
+        <div class="envelope-wrapper" id="envelopeWrapper">
+            <div class="envelope" id="envelope">
+                <div class="envelope-front">
+                    <h1 class="front-title">To My Love</h1>
+                    <div class="front-address">
+                        <p>我最亲爱的</p>
+                        <p class="front-to">南書宝宝</p>
+                    </div>
+                </div>
+                <div class="envelope-back">
+                    <div class="envelope-flap" id="flap"></div>
+                    <div class="wax-seal-container" id="waxSealContainer">
+                        <div class="wax-seal"></div>
+                    </div>
+                    <div class="letter-container">
+                        <div class="letter" id="letter">
+                            <div class="letter-greeting">吾爱<span class="letter-name">南書</span>：</div>
+                            <div class="letter-content">
+                                <p>嘿嘿，宝宝生日快乐啦！炒鸡遗憾去年刚好错过宝宝的生日，那么今年一定要一起好好过一个生日！（画风即将突变嘿嘿~）</p>
+                                <p>写这封信的时候，窗外太阳很好，我的对面是认真复习的你，我的脚边是两只可爱的茂密，手边摆着一杯你做的咖啡。打下这些字，我抬头看了看你，低头看了看茂密，趁你不注意，环视了一下周围。我在这个家，好像也生活了半年了，而我们的故事，也即将迎来一周年。</p>
+                                <p>手指落在键盘上，才发觉我们有那么多的故事可以写，一时间竟不知从何说起。也许该从第一次见你的时候，你的笑靥和我的悸动开始说起？又或是从表白那晚我紧张得拿起可乐直接往大麦茶的杯子里倒开始说起？亦或是我们到处旅游到处逛吃逛吃说起？还是从我们开启温馨而又日常的同居生活开始说起？</p>
+                                <p>宝宝，跟你一起生活，是我此生做过的最美的梦，也是最真切的事实。一屋两人三餐四季，这曾是我理想中的生活的样子。而这样的生活从前只是一个模糊的书中故事的倒影，我羡慕过，也希冀过。但现在被你填满了细碎的、温热的颜色（还多了两只可爱的茂密嘿嘿）。它是每一个清晨，光穿过窗帘的缝隙，落在你熟睡的脸上，伴随着闹钟的“抗议”，我们相继起床；是我们在厨房里为一个菜谱手忙脚乱，把厨房变成了“战场”，但最后还是对着那盘成果大快朵颐；也是我们默契地记着各个纪念日，“不动声色”地问对方那天的安排，互相为对方准备惊喜；还是我们在每个晚间，一起牵手散步，一起逛超市，一起陪茂密玩耍，一起学习，一起玩游戏，一起看剧。</p>
+                                <p>这些看似琐碎的、平凡的日子，因为你在，都被镀上了一层微光。是你让我相信，人间烟火里也藏着诗，柴米油盐也可以很浪漫。“从前有一朵云，他飘啊飘，直到遇见了你，便想落下来，与你安度余生”。在遇到你之前，我只是觉得这句话很浪漫，遇到你之后，那朵云不仅有了实感，甚至，我觉得我就是那朵云，而你的出现，赋予了我这种浪漫、这种幸福。宝宝，我想告诉你，我爱你。这份爱，不仅仅是初见你时的心动和听到你愿意在一起之后我的喜悦，更是日复一日相处后，我知道你是归途，不是过客；也是那种，书中说的目光所及皆是你，余生只想全是你。</p>
+                                <p>宝宝，我常常想，在你遇见我之前的那二十几年里，你走过的路、淋过的雨、笑过的黄昏、哭过的夜晚，我都不在场，这是命运给我的一点缺憾。但往后的岁月，如果能够“执子之手，与子偕老”，这是我最大的荣幸。</p>
+                                <p>生日快乐，宝宝。你是我途经人间，收到的最好的一份礼物。</p>
+                            </div>
+                            <div class="letter-signature">
+                                爱你的　<span class="sign-name">云落安</span><br>
+                                <span class="sign-date">2026年7月5日</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p class="hint-text" id="hintText">点击信封翻面</p>
+    </div>
+
+    <script>
+        const envelopeWrapper = document.getElementById('envelopeWrapper');
+        const envelope = document.getElementById('envelope');
+        const flap = document.getElementById('flap');
+        const waxSealContainer = document.getElementById('waxSealContainer');
+        const letter = document.getElementById('letter');
+        const container = document.getElementById('container');
+        const hintText = document.getElementById('hintText');
+
+        let isFlipped = false;
+        let isOpened = false;
+
+        envelopeWrapper.addEventListener('click', () => {
+            if (!isFlipped && !isOpened) {
+                envelope.classList.add('flipped');
+                isFlipped = true;
+                hintText.textContent = '点击火漆印拆开信件';
+            }
+        });
+
+        waxSealContainer.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (!isOpened && isFlipped) {
+                openLetter();
+            }
+        });
+
+        function openLetter() {
+            isOpened = true;
+            waxSealContainer.classList.add('opening');
+
+            const envelopeRect = container.getBoundingClientRect();
+
+            setTimeout(() => {
+                waxSealContainer.classList.add('hidden');
+                flap.classList.add('opened');
+
+                const letterEl = letter;
+                letterEl.style.position = 'fixed';
+                letterEl.style.left = envelopeRect.left + 'px';
+                letterEl.style.top = envelopeRect.top + 'px';
+                letterEl.style.width = envelopeRect.width + 'px';
+                letterEl.style.height = envelopeRect.height + 'px';
+                document.body.appendChild(letterEl);
+
+                requestAnimationFrame(() => {
+                    letterEl.classList.add('opened');
+                    container.classList.add('opened');
+                    hintText.textContent = '❤ 祝你生日快乐 ❤';
+                });
+            }, 600);
+
+            createParticles();
+        }
+
+        function createParticles() {
+            const rect = waxSealContainer.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            for (let i = 0; i < 12; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                document.body.appendChild(particle);
+
+                const angle = (Math.PI * 2 * i) / 12;
+                const distance = 50 + Math.random() * 50;
+                const targetX = centerX + Math.cos(angle) * distance;
+                const targetY = centerY + Math.sin(angle) * distance;
+
+                particle.style.left = centerX + 'px';
+                particle.style.top = centerY + 'px';
+                particle.style.opacity = '1';
+
+                setTimeout(() => {
+                    particle.style.transition = 'all 0.8s ease-out';
+                    particle.style.left = targetX + 'px';
+                    particle.style.top = targetY + 'px';
+                    particle.style.opacity = '0';
+                    setTimeout(() => particle.remove(), 800);
+                }, 50);
+            }
+        }
+
+        document.addEventListener('touchstart', function() {}, false);
+    </script>
+</body>
+</html>
